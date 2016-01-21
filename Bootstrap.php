@@ -601,11 +601,11 @@ class Shopware_Plugins_Backend_PlentyConnector_Bootstrap extends Shopware_Compon
         	'Shopware_Modules_Order_SaveOrder_ProcessDetails',
         	'onOrderSaveOrderProcessDetails'
         );
-
-//		$this->subscribeEvent(
-//			'Shopware_Models_Order_Order::postPersist',
-//			'onOrderModelPostPersist'
-//		);
+		
+		$this->subscribeEvent(
+			'Shopware_Models_Order_Order::postPersist',
+			'onOrderModelPostPersist'
+		);
 
 		// Insert the CSS
         $this->subscribeEvent(

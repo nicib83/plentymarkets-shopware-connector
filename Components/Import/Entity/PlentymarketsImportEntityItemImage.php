@@ -256,12 +256,6 @@ class PlentymarketsImportEntityItemImage
 
 					$image->setPosition($Image->Position);
 
-					// Generate the thumbnails
-					if (version_compare(Shopware::VERSION, '4.2') != 1)
-					{
-						PlentymarketsImportItemImageThumbnailController::getInstance()->addMediaResource($media);
-					}
-
 					Shopware()->Models()->persist($image);
 					Shopware()->Models()->flush();
 

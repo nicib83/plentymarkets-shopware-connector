@@ -278,17 +278,7 @@ class PlentymarketsImportControllerItem
 			PlentymarketsLogger::getInstance()->error('Sync:Item:Linked', 'PlentymarketsImportControllerItemLinked failed');
 			PlentymarketsLogger::getInstance()->error('Sync:Item:Linked', $E->getMessage());
 		}
-
-		try
-		{
-			// Stock stack
-			PlentymarketsImportItemImageThumbnailController::getInstance()->generate();
-		}
-		catch (Exception $E)
-		{
-			PlentymarketsLogger::getInstance()->error('Sync:Item:Image', 'PlentymarketsImportItemImageThumbnailController failed');
-			PlentymarketsLogger::getInstance()->error('Sync:Item:Image', $E->getMessage());
-		}
+		
 	}
 
 	/**

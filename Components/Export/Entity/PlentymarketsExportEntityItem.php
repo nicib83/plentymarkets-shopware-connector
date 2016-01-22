@@ -274,16 +274,11 @@ class PlentymarketsExportEntityItem
 
 			try
 			{
-				if(version_compare(Shopware::VERSION, '5.1.0', '<'))
-				{
-					$fullpath = Shopware()->DocPath() . $ImageMedia->getPath();
-				}
-				else
-				{
-					// shopware 5.1.1
-					$mediaService = Shopware()->Container()->get('shopware_media.media_service');
-					$fullpath = $mediaService->getUrl('media/image/' . $Image->getPath() . '.' . $Image->getExtension());
-				}
+				
+				// shopware versions 5.1.1 and higher
+				$mediaService = Shopware()->Container()->get('shopware_media.media_service');
+				$fullpath = $mediaService->getUrl('media/image/' . $Image->getPath() . '.' . $Image->getExtension());
+				
 			}
 			catch (Exception $E)
 			{

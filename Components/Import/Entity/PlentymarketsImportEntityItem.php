@@ -131,11 +131,16 @@ class PlentymarketsImportEntityItem
 			if(isset($itemText['languageShopId']))
 			{
 				// save the translation for the language shop
-
-				$swItemText = array('txtArtikel' => $itemText['texts']->Name,
-									'txtshortdescription' => $itemText['texts']->ShortDescription,
-									'txtlangbeschreibung' => $itemText['texts']->LongDescription,
-									'txtkeywords' => $itemText['texts']->ItemDescriptionKeywords);
+				$useName = PlentymarketsConfig::getInstance()->getItemNameImportActionID(IMPORT_ITEM_NAME);
+				
+				$description = (PlentymarketsConfig::getInstance()->getItemShortDescriptionImportActionID(IMPORT_ITEM_SHORTDESC) == 1) ? $itemText['texts']->ShortDescription : '';
+				$descriptionLong = (PlentymarketsConfig::getInstance()->getItemLongDescriptionImportActionID(IMPORT_ITEM_LONGDESC) == 1) ? $itemText['texts']->LongDescription : '';
+				$keywords = (PlentymarketsConfig::getInstance()->getItemKeywordsImportActionID(IMPORT_ITEM_KEYWORDS) == 1) ? $itemText['texts']->ItemDescriptionKeywords : '';
+				
+				$swItemText = array('txtArtikel' => isset($itemText['texts']->{($useName)}) ? $itemText['texts']->{($useName)} : $itemText['texts']->Name,
+									'txtshortdescription' => $description,
+									'txtlangbeschreibung' => $descriptionLong,
+									'txtkeywords' => $keywords);
 				
 				$swItemID = PlentymarketsMappingController::getItemByPlentyID($this->ItemBase->ItemID);
 
@@ -173,10 +178,11 @@ class PlentymarketsImportEntityItem
 	{
 		// save the item texts for the shop main language
 		$this->data = array();
-		$this->data['name'] = $this->ItemBase->Texts->Name;
-		$this->data['description'] = $this->ItemBase->Texts->ShortDescription;
-		$this->data['descriptionLong'] = $this->ItemBase->Texts->LongDescription;
-		$this->data['keywords'] = $this->ItemBase->Texts->Keywords;
+		
+		$this->data['name'] = $this->getItemName($this->ItemBase->Texts);
+		$this->data['description'] = (PlentymarketsConfig::getInstance()->getItemShortDescriptionImportActionID(IMPORT_ITEM_SHORTDESC) == 1) ? $this->ItemBase->Texts->ShortDescription : '';
+		$this->data['descriptionLong'] = (PlentymarketsConfig::getInstance()->getItemLongDescriptionImportActionID(IMPORT_ITEM_LONGDESC) == 1) ? $this->ItemBase->Texts->LongDescription : '';
+		$this->data['keywords'] = (PlentymarketsConfig::getInstance()->getItemKeywordsImportActionID(IMPORT_ITEM_KEYWORDS) == 1) ? $this->ItemBase->Texts->Keywords : '';
 		
 		$this->data['highlight'] = ($this->ItemBase->WebShopSpecial == 3);
 		$this->data['lastStock'] = ($this->ItemBase->Stock->Limitation == 1);
@@ -220,6 +226,26 @@ class PlentymarketsImportEntityItem
 	}
 
 	/**
+	 * Returns the item name
+	 * @param $ItemTexts PlentySoapObject_ItemTexts
+	 * @return string
+	*/
+	protected function getItemName($ItemTexts)
+	{
+		$useName = PlentymarketsConfig::getInstance()->getItemNameImportActionID(IMPORT_ITEM_NAME);
+
+		if($useName != 'Name')
+		{
+			if(isset($ItemTexts->{($useName)})) 
+			{
+				return $ItemTexts->{($useName)};
+			}
+		}
+
+		return $ItemTexts->Name;
+	}
+
+	/**
 	 * Set the base details
 	 */
 	protected function setDetails()
@@ -229,7 +255,7 @@ class PlentymarketsImportEntityItem
 
 		// Active
 		$active = $this->ItemBase->Availability->Inactive == 0 && $this->ItemBase->Availability->Webshop == 1;
-
+		
 		$details = array(
 			'active' => $active,
 			'ean' => $this->ItemBase->EAN1,
@@ -244,30 +270,34 @@ class PlentymarketsImportEntityItem
 			'weight' => null,
 			'width' => null,
 			'len' => null,
-			'height' => null,
-			'attribute' => array(
-				'attr1' => $this->ItemBase->FreeTextFields->Free1,
-				'attr2' => $this->ItemBase->FreeTextFields->Free2,
-				'attr3' => $this->ItemBase->FreeTextFields->Free3,
-				'attr4' => $this->ItemBase->FreeTextFields->Free4,
-				'attr5' => $this->ItemBase->FreeTextFields->Free5,
-				'attr6' => $this->ItemBase->FreeTextFields->Free6,
-				'attr7' => $this->ItemBase->FreeTextFields->Free7,
-				'attr8' => $this->ItemBase->FreeTextFields->Free8,
-				'attr9' => $this->ItemBase->FreeTextFields->Free9,
-				'attr10' => $this->ItemBase->FreeTextFields->Free10,
-				'attr11' => $this->ItemBase->FreeTextFields->Free11,
-				'attr12' => $this->ItemBase->FreeTextFields->Free12,
-				'attr13' => $this->ItemBase->FreeTextFields->Free13,
-				'attr14' => $this->ItemBase->FreeTextFields->Free14,
-				'attr15' => $this->ItemBase->FreeTextFields->Free15,
-				'attr16' => $this->ItemBase->FreeTextFields->Free16,
-				'attr17' => $this->ItemBase->FreeTextFields->Free17,
-				'attr18' => $this->ItemBase->FreeTextFields->Free18,
-				'attr19' => $this->ItemBase->FreeTextFields->Free19,
-				'attr20' => $this->ItemBase->FreeTextFields->Free20
-			)
+			'height' => null
 		);
+
+		if(PlentymarketsConfig::getInstance()->getItemFreetextsImportActionID(IMPORT_ITEM_FREETEXTS) == 1)
+		{
+			$details['attribute'] = array(
+											'attr1' => $this->ItemBase->FreeTextFields->Free1,
+											'attr2' => $this->ItemBase->FreeTextFields->Free2,
+											'attr3' => $this->ItemBase->FreeTextFields->Free3,
+											'attr4' => $this->ItemBase->FreeTextFields->Free4,
+											'attr5' => $this->ItemBase->FreeTextFields->Free5,
+											'attr6' => $this->ItemBase->FreeTextFields->Free6,
+											'attr7' => $this->ItemBase->FreeTextFields->Free7,
+											'attr8' => $this->ItemBase->FreeTextFields->Free8,
+											'attr9' => $this->ItemBase->FreeTextFields->Free9,
+											'attr10' => $this->ItemBase->FreeTextFields->Free10,
+											'attr11' => $this->ItemBase->FreeTextFields->Free11,
+											'attr12' => $this->ItemBase->FreeTextFields->Free12,
+											'attr13' => $this->ItemBase->FreeTextFields->Free13,
+											'attr14' => $this->ItemBase->FreeTextFields->Free14,
+											'attr15' => $this->ItemBase->FreeTextFields->Free15,
+											'attr16' => $this->ItemBase->FreeTextFields->Free16,
+											'attr17' => $this->ItemBase->FreeTextFields->Free17,
+											'attr18' => $this->ItemBase->FreeTextFields->Free18,
+											'attr19' => $this->ItemBase->FreeTextFields->Free19,
+											'attr20' => $this->ItemBase->FreeTextFields->Free20
+										);
+		}
 
 		if ($this->ItemBase->Availability->MinimumSalesOrderQuantity > 0)
 		{

@@ -71,8 +71,10 @@ class PlentymarketsImportEntityOrderStatusChange extends PlentymarketsImportEnti
 		}
 		catch (Exception $e)
 		{
+			print_r($e);
 		}
 
+		/*
 		try
 		{
 			$status = sprintf("%.1f", (float)$Order->OrderStatus);
@@ -82,6 +84,8 @@ class PlentymarketsImportEntityOrderStatusChange extends PlentymarketsImportEnti
 		}
 		catch (Exception $e)
 		{
+			print_r($e);
 		}
+		*/
 	}
 }

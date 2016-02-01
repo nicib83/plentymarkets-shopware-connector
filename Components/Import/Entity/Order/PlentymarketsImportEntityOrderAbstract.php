@@ -64,7 +64,7 @@ abstract class PlentymarketsImportEntityOrderAbstract
 		$this->Request_SearchOrders->GetOrderDeliveryAddress = false; // boolean
 		$this->Request_SearchOrders->GetOrderDocumentNumbers = false; // boolean
 		$this->Request_SearchOrders->GetOrderInfo = false; // boolean
-		$this->Request_SearchOrders->GetParcelService = false; // boolean
+		$this->Request_SearchOrders->GetParcelService = true; // boolean
 		$this->Request_SearchOrders->GetSalesOrderProperties = false; // boolean
 		$this->Request_SearchOrders->StoreID = $storeId; // int
 		$this->Request_SearchOrders->OrderType = 'order'; // string
@@ -107,7 +107,6 @@ abstract class PlentymarketsImportEntityOrderAbstract
 	 */
 	public function import()
 	{
-		//
 		$this->prepare();
 
 		// Helper
@@ -115,9 +114,10 @@ abstract class PlentymarketsImportEntityOrderAbstract
 
 		do
 		{
+			// Force Update
+			//$this->Request_SearchOrders->LastUpdateFrom = ($this->Request_SearchOrders->LastUpdateFrom - (3600*1));
 			$Response_SearchOrders = PlentymarketsSoapClient::getInstance()->SearchOrders($this->Request_SearchOrders);
 
-			//
 			$pages = max($Response_SearchOrders->Pages, 1);
 
 			$this->log('Page: ' . ($this->Request_SearchOrders->Page + 1) . '/' . $pages);
@@ -152,6 +152,10 @@ abstract class PlentymarketsImportEntityOrderAbstract
 
 					$this->handle($SHOPWARE_orderId, $Order);
 					$this->log('The sales order with the id ' . $orderId . ' has been updated.');
+
+					$db = Shopware()->Db();
+			        $r = $db->executeUpdate("UPDATE `s_order` SET trackingcode = '".$Order->PackageNumber."' WHERE `id` = ".$SHOPWARE_orderId);
+			        $this->log('Setting the package number '.$Order->PackageNumber.' for the order '.$SHOPWARE_orderId);
 
 					++$numberOfOrdersUpdated;
 				}
